@@ -1,20 +1,35 @@
 package com.playtomic.tests.wallet.service;
 
+import com.playtomic.tests.wallet.api.TopUpRequest;
 import com.playtomic.tests.wallet.api.WalletDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.Instant;
 
 @Service
 public class WalletService {
     @Autowired
     private WalletRepository walletRepository;
+    @Autowired
+    private WalletEntryRepository walletEntryRepository;
+    @Autowired
+    private StripeService stripeService;
 
     public WalletDTO getWallet(long id) {
-        // I thought of returning the wallet's info formatted might be better (no over engineering intended)
         Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
 
+        // I thought of returning the wallet's info formatted might be better (no over engineering intended)
         return new WalletDTO(formatBalance(wallet.getBalanceInMinor(), wallet.getCurrencyCode()));
+    }
+
+    public void topUp(long walletId, TopUpRequest requestBody) {
+        // TODO throw an exception if wallet doesn't exist
+        Payment payment = stripeService.charge(requestBody.creditCardNumber(), requestBody.amount());
+        WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), requestBody.amount(), Instant.now());
+        walletEntryRepository.save(walletEntry);
+        // TODO: publish an event that the wallet was updated
     }
 
     /**
@@ -29,5 +44,4 @@ public class WalletService {
 
         return amountInMajor + " " + currencyCode;
     }
-
 }

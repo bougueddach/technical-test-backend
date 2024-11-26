@@ -12,5 +12,11 @@ public class ExceptionsHandler {
     public ResponseEntity<?> handleResourceNotFoundException(ResourceNotFoundException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
+
+
+    @ExceptionHandler(StripeAmountTooSmallException.class)
+    public ResponseEntity<?> handleStripeAmountTooSmallException(StripeAmountTooSmallException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
 

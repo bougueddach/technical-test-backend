@@ -2,11 +2,13 @@ package com.playtomic.tests.wallet.service;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Getter;
 import lombok.NonNull;
 
 public class Payment {
 
     @NonNull
+    @Getter
     private String id;
 
     @JsonCreator
