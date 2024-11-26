@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class WalletServiceTest {
 
+    public static final long WALLET_ID = 1L;
     @Mock
     private WalletRepository repository;
 
@@ -25,16 +26,16 @@ class WalletServiceTest {
 
     @Test
     void getWallet_whenWalletDoesNotExist_shouldThrowException() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+        when(repository.findById(WALLET_ID)).thenReturn(Optional.empty());
 
-        assertThrows(ResourceNotFoundException.class, ()-> sut.getWallet(1));
+        assertThrows(ResourceNotFoundException.class, ()-> sut.getWallet(WALLET_ID));
     }
 
     @Test
     void getWallet_whenWalletExist_shouldReturnItFormatted() {
         when(repository.findById(1L)).thenReturn(Optional.of(new Wallet(1010L, "EUR")));
 
-        WalletDTO result = sut.getWallet(1);
+        WalletDTO result = sut.getWallet(WALLET_ID);
 
         assertThat(result.balance()).isEqualTo("10.1 EUR");
     }
