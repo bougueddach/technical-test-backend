@@ -1,4 +1,6 @@
-package com.playtomic.tests.wallet.service;
+package com.playtomic.tests.wallet.helpers;
+import com.playtomic.tests.wallet.service.Wallet;
+import com.playtomic.tests.wallet.service.WalletRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;

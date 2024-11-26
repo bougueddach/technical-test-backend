@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.service;
 
+import com.playtomic.tests.wallet.helpers.CurrencyFormatter;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

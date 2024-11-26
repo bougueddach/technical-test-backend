@@ -2,6 +2,7 @@ package com.playtomic.tests.wallet.service;
 
 import com.playtomic.tests.wallet.api.TopUpRequest;
 import com.playtomic.tests.wallet.api.WalletDTO;
+import com.playtomic.tests.wallet.helpers.CurrencyFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
