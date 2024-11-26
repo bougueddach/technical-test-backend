@@ -31,13 +31,24 @@ public class WalletService {
         return new WalletDTO(formatBalance(wallet.getBalanceInMinor(), wallet.getCurrencyCode()));
     }
 
+    /**
+     * Since the stripe api takes a BigDecimal I will assume that's the major and design my API to stake the same
+     *
+     * @param walletId
+     * @param requestBody
+     */
     public void topUp(long walletId, TopUpRequest requestBody) {
-        // TODO throw an exception if wallet doesn't exist
+        // TODO Throw an exception if wallet doesn't exist
+        // TODO Check if currency is same as the wallet's currency
+
         Payment payment = stripeService.charge(requestBody.creditCardNumber(), requestBody.amount());
+
         Instant topUpTime = clock.instant();
-        WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), requestBody.amount().longValue(), topUpTime);
+        long amountInMinor = CurrencyFormatter.majorToMinor(requestBody.amount(), requestBody.currencyCode());
+        WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), amountInMinor, topUpTime);
+
         walletEntryRepository.save(walletEntry);
-        eventPublisher.publishEvent(new WalletEntryCreatedEvent(walletId, requestBody.amount().longValue(), topUpTime));
+        eventPublisher.publishEvent(new WalletEntryCreatedEvent(walletId, amountInMinor, topUpTime));
     }
 
     /**
@@ -48,8 +59,6 @@ public class WalletService {
      * @return a formatted string with amount in major and currency
      */
     private String formatBalance(long balanceInMinor, String currencyCode) {
-        float amountInMajor = balanceInMinor / 100f;
-
-        return amountInMajor + " " + currencyCode;
+        return CurrencyFormatter.minorToMajor(balanceInMinor, currencyCode) + " " + currencyCode;
     }
 }

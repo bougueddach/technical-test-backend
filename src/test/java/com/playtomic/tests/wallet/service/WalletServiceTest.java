@@ -30,6 +30,7 @@ class WalletServiceTest {
     public static final BigDecimal BIG_DECIMAL_OF_20 = BigDecimal.valueOf(20);
     public static final String PAYMENT_ID = "payment_id";
     public static final Instant AN_INSTANT = Instant.parse("2024-11-26T10:15:30Z");
+    public static final String EUR = "EUR";
     @Mock
     private WalletRepository repository;
     @Mock
@@ -63,21 +64,14 @@ class WalletServiceTest {
 
         WalletDTO result = sut.getWallet(WALLET_ID);
 
-        assertThat(result.balance()).isEqualTo("10.1 EUR");
+        assertThat(result.balance()).isEqualTo("10.10 EUR");
     }
-
-//    @Test
-//    void topUp_whenWalletDoesNotExist_shouldThrowException() {
-//        when(repository.findById(WALLET_ID)).thenReturn(Optional.empty());
-//
-//        assertThrows(ResourceNotFoundException.class, ()-> sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BigDecimal.valueOf(20))));
-//    }
 
     @Test
     void topUp_whenAmountLessThen10_shouldThrowException() {
         when(stripeService.charge(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_5)).thenThrow(StripeAmountTooSmallException.class);
 
-        assertThrows(StripeAmountTooSmallException.class, () -> sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_5)));
+        assertThrows(StripeAmountTooSmallException.class, () -> sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_5, EUR)));
     }
 
     @Test
@@ -86,19 +80,19 @@ class WalletServiceTest {
         when(stripeService.charge(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_20)).thenReturn(new Payment(PAYMENT_ID));
         when(clock.instant()).thenReturn(AN_INSTANT);
 
-        sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_20));
+        sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_20, EUR));
 
         verify(walletEntryRepository).save(walletEntryArgumentCaptor.capture());
         WalletEntry capturedWalletEntry = walletEntryArgumentCaptor.getValue();
         assertThat(capturedWalletEntry).extracting("walletId").isEqualTo(WALLET_ID);
         assertThat(capturedWalletEntry).extracting("paymentId").isEqualTo(PAYMENT_ID);
-        assertThat(capturedWalletEntry).extracting("amount").isEqualTo(BIG_DECIMAL_OF_20.longValue());
+        assertThat(capturedWalletEntry).extracting("amount").isEqualTo(2000L);
         assertThat(capturedWalletEntry).extracting("creation_time").isEqualTo(AN_INSTANT);
 
         verify(eventPublisher).publishEvent(walletUpdatedEventCaptor.capture());
         WalletEntryCreatedEvent capturedEvent = walletUpdatedEventCaptor.getValue();
 
         assertThat(capturedEvent.walletId).isEqualTo(WALLET_ID);
-        assertThat(capturedEvent.amount).isEqualTo(BIG_DECIMAL_OF_20.toBigInteger().longValue());
+        assertThat(capturedEvent.amount).isEqualTo(2000L);
     }
 }
