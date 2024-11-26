@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,15 +28,16 @@ class WalletServiceTest {
     public static final BigDecimal BIG_DECIMAL_OF_5 = BigDecimal.valueOf(5);
     public static final BigDecimal BIG_DECIMAL_OF_20 = BigDecimal.valueOf(20);
     public static final String PAYMENT_ID = "payment_id";
+    public static final Instant AN_INSTANT = Instant.parse("2024-11-26T10:15:30Z");
     @Mock
     private WalletRepository repository;
     @Mock
     private WalletEntryRepository walletEntryRepository;
     @Mock
     private StripeService stripeService;
+    @Mock
+    private Clock clock;
 
-    @Captor
-    private ArgumentCaptor<Payment> capturedPayment;
     @Captor
     private ArgumentCaptor<WalletEntry> walletEntryArgumentCaptor;
 
@@ -76,6 +79,7 @@ class WalletServiceTest {
     void topUp_whenAmountMoreThen10_shouldSaveWalletEntry() {
 
         when(stripeService.charge(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_20)).thenReturn(new Payment(PAYMENT_ID));
+        when(clock.instant()).thenReturn(AN_INSTANT);
 
         sut.topUp(WALLET_ID, new TopUpRequest(CREDIT_CARD_NUMBER, BIG_DECIMAL_OF_20));
 
@@ -84,6 +88,6 @@ class WalletServiceTest {
         assertThat(capturedWalletEntry).extracting("walletId").isEqualTo(WALLET_ID);
         assertThat(capturedWalletEntry).extracting("paymentId").isEqualTo(PAYMENT_ID);
         assertThat(capturedWalletEntry).extracting("amount").isEqualTo(BIG_DECIMAL_OF_20);
-//        assertThat(capturedWalletEntry).extracting("creation_time").isEqualTo(BIG_DECIMAL_OF_20);
+        assertThat(capturedWalletEntry).extracting("creation_time").isEqualTo(AN_INSTANT);
     }
 }

@@ -5,7 +5,7 @@ import com.playtomic.tests.wallet.api.WalletDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.Clock;
 
 @Service
 public class WalletService {
@@ -15,6 +15,8 @@ public class WalletService {
     private WalletEntryRepository walletEntryRepository;
     @Autowired
     private StripeService stripeService;
+    @Autowired
+    private Clock clock;
 
     public WalletDTO getWallet(long id) {
         Wallet wallet = walletRepository.findById(id)
@@ -27,7 +29,7 @@ public class WalletService {
     public void topUp(long walletId, TopUpRequest requestBody) {
         // TODO throw an exception if wallet doesn't exist
         Payment payment = stripeService.charge(requestBody.creditCardNumber(), requestBody.amount());
-        WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), requestBody.amount(), Instant.now());
+        WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), requestBody.amount(), clock.instant());
         walletEntryRepository.save(walletEntry);
         // TODO: publish an event that the wallet was updated
     }
