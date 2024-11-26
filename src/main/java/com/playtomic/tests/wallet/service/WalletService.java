@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Currency;
 
 @Service
 public class WalletService {
@@ -28,15 +29,14 @@ public class WalletService {
         Wallet wallet = walletRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + id));
 
-        // I thought of returning the wallet's info formatted might be better (no over engineering intended)
+        // I thought returning the balance formatted might be better
+        // (no over engineering intended, sorry if I should have returned the plain wallet entity😅)
         return new WalletDTO(formatBalance(wallet.getBalanceInMinor(), wallet.getCurrencyCode()));
     }
 
     /**
-     * Since the stripe api takes a BigDecimal I will assume that's the major and design my API to stake the same
+     * Since the stripe api takes a BigDecimal I will assume that's the major and design my API to take that
      *
-     * @param walletId
-     * @param requestBody
      */
     public void topUp(long walletId, TopUpRequest requestBody) {
         // TODO Throw an exception if wallet doesn't exist
@@ -52,14 +52,7 @@ public class WalletService {
         eventPublisher.publishEvent(new WalletEntryCreatedEvent(walletId, amountInMinor, topUpTime));
     }
 
-    /**
-     * Very basic minor to major conversion supporting EUR and USD, could replace in future
-     *
-     * @param balanceInMinor
-     * @param currencyCode
-     * @return a formatted string with amount in major and currency
-     */
     private String formatBalance(long balanceInMinor, String currencyCode) {
-        return CurrencyFormatter.minorToMajor(balanceInMinor, currencyCode) + " " + currencyCode;
+        return CurrencyFormatter.minorToMajor(balanceInMinor, currencyCode) + " " + Currency.getInstance(currencyCode).getSymbol();
     }
 }

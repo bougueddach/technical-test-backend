@@ -64,7 +64,7 @@ class WalletServiceTest {
 
         WalletDTO result = sut.getWallet(WALLET_ID);
 
-        assertThat(result.balance()).isEqualTo("10.10 EUR");
+        assertThat(result.balance()).isEqualTo("10.10 €");
     }
 
     @Test
