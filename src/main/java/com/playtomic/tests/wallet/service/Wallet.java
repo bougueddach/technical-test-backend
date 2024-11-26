@@ -16,11 +16,18 @@ public class Wallet {
     private long balanceInMinor;
     @Getter
     private String currencyCode;
+    @Getter
+    private long lastProcessedWalletEntry;
 
     public Wallet() {}
 
     public Wallet(long balanceInMinor, String currencyCode) {
         this.balanceInMinor = balanceInMinor;
         this.currencyCode = currencyCode;
+    }
+
+    public void updateBalance(long amount, long lastProcessedWalletEntry) {
+        this.balanceInMinor = amount;
+        this.lastProcessedWalletEntry = lastProcessedWalletEntry;
     }
 }

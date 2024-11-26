@@ -1,7 +1,10 @@
 package com.playtomic.tests.wallet.service;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.Getter;
 
 import java.time.Instant;
 
@@ -9,9 +12,12 @@ import java.time.Instant;
 public class WalletEntry {
 
     @Id
+    @Getter
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private Long walletId;
     private String paymentId;
+    @Getter
     private Long amount;
     private Instant creation_time;
     private String currencyCode;

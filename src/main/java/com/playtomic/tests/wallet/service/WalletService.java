@@ -37,7 +37,7 @@ public class WalletService {
         Instant topUpTime = clock.instant();
         WalletEntry walletEntry = new WalletEntry(walletId, payment.getId(), requestBody.amount().longValue(), topUpTime);
         walletEntryRepository.save(walletEntry);
-        eventPublisher.publishEvent(new WalletUpdatedEvent(walletId, requestBody.amount().longValue(), topUpTime));
+        eventPublisher.publishEvent(new WalletEntryCreatedEvent(walletId, requestBody.amount().longValue(), topUpTime));
     }
 
     /**

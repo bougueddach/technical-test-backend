@@ -44,7 +44,7 @@ class WalletServiceTest {
     @Captor
     private ArgumentCaptor<WalletEntry> walletEntryArgumentCaptor;
     @Captor
-    private ArgumentCaptor<WalletUpdatedEvent> walletUpdatedEventCaptor;
+    private ArgumentCaptor<WalletEntryCreatedEvent> walletUpdatedEventCaptor;
 
     @InjectMocks
     private WalletService sut;
@@ -96,7 +96,7 @@ class WalletServiceTest {
         assertThat(capturedWalletEntry).extracting("creation_time").isEqualTo(AN_INSTANT);
 
         verify(eventPublisher).publishEvent(walletUpdatedEventCaptor.capture());
-        WalletUpdatedEvent capturedEvent = walletUpdatedEventCaptor.getValue();
+        WalletEntryCreatedEvent capturedEvent = walletUpdatedEventCaptor.getValue();
 
         assertThat(capturedEvent.walletId).isEqualTo(WALLET_ID);
         assertThat(capturedEvent.amount).isEqualTo(BIG_DECIMAL_OF_20.toBigInteger().longValue());
