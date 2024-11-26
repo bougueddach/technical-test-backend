@@ -18,19 +18,22 @@ public class WalletEventsListener {
         Wallet wallet = walletRepository.findById(event.walletId)
                 .orElseThrow(() -> new ResourceNotFoundException("Wallet not found with id: " + event.walletId));
         List<WalletEntry> walletEntries = walletEntryRepository.findEventsAfter(event.walletId, wallet.getLastProcessedWalletEntry());
+        if (walletEntries.isEmpty()) {
+            return;
+        }
 
         long newBalanceInMinor = calculateNewBalance(wallet.getBalanceInMinor(), walletEntries);
 
-        wallet.updateBalance(newBalanceInMinor, walletEntries.stream().mapToLong(WalletEntry::getId).max().getAsLong());
+        wallet.updateBalance(newBalanceInMinor, getLastProcessedWalletEntry(walletEntries));
         walletRepository.save(wallet);
+    }
+
+    private static long getLastProcessedWalletEntry(List<WalletEntry> walletEntries) {
+        return walletEntries.stream().mapToLong(WalletEntry::getId).max().getAsLong();
     }
 
     private long calculateNewBalance(long balance, List<WalletEntry> walletEntries) {
 
-//        for (WalletEntry entry : walletEntries) {
-//            balance += entry.getAmount();
-//        }
-//        return balance;
         return walletEntries.stream()
                 .mapToLong(WalletEntry::getAmount)
                 .reduce(balance, Long::sum);
