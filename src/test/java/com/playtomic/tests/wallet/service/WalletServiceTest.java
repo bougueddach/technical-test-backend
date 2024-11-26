@@ -9,6 +9,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.math.BigDecimal;
 import java.time.Clock;
@@ -37,9 +38,13 @@ class WalletServiceTest {
     private StripeService stripeService;
     @Mock
     private Clock clock;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @Captor
     private ArgumentCaptor<WalletEntry> walletEntryArgumentCaptor;
+    @Captor
+    private ArgumentCaptor<WalletUpdatedEvent> walletUpdatedEventCaptor;
 
     @InjectMocks
     private WalletService sut;
@@ -87,7 +92,13 @@ class WalletServiceTest {
         WalletEntry capturedWalletEntry = walletEntryArgumentCaptor.getValue();
         assertThat(capturedWalletEntry).extracting("walletId").isEqualTo(WALLET_ID);
         assertThat(capturedWalletEntry).extracting("paymentId").isEqualTo(PAYMENT_ID);
-        assertThat(capturedWalletEntry).extracting("amount").isEqualTo(BIG_DECIMAL_OF_20);
+        assertThat(capturedWalletEntry).extracting("amount").isEqualTo(BIG_DECIMAL_OF_20.longValue());
         assertThat(capturedWalletEntry).extracting("creation_time").isEqualTo(AN_INSTANT);
+
+        verify(eventPublisher).publishEvent(walletUpdatedEventCaptor.capture());
+        WalletUpdatedEvent capturedEvent = walletUpdatedEventCaptor.getValue();
+
+        assertThat(capturedEvent.walletId).isEqualTo(WALLET_ID);
+        assertThat(capturedEvent.amount).isEqualTo(BIG_DECIMAL_OF_20.toBigInteger().longValue());
     }
 }
