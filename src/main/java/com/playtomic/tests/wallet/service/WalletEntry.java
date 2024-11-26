@@ -14,11 +14,11 @@ public class WalletEntry {
     @Id
     @Getter
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Long walletId;
+    private long id;
+    private long walletId;
     private String paymentId;
     @Getter
-    private Long amount;
+    private long amount;
     private Instant creation_time;
     private String currencyCode;
 
