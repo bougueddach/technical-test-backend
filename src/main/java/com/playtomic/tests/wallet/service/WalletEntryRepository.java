@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface WalletEntryRepository extends JpaRepository<WalletEntry, Long> {
 
-    @Query("SELECT WE from WalletEntry WE WHERE WE.walletId = :walletId AND WE.id>:lastProcessedWalletEntry")
+    @Query("SELECT WE from WalletEntry WE WHERE WE.walletId = :walletId AND WE.id > :lastProcessedWalletEntry")
     List<WalletEntry> findEventsAfter(long walletId, long lastProcessedWalletEntry);
 }
